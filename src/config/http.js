@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import axios from 'axios'
-import $router from '@/route'
+import $router from '../router'
 import { Loading } from 'element-ui';
 
 let loading = null;

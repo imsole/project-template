@@ -15,27 +15,22 @@ export const constantRoutes = [
   {
     path: '/404',
     name: 'Error404',
-    component: () => import('@/views/status/Error404.vue')
+    component: () => import('@/pages/status/Error404.vue')
   },
   {
     path: '/500',
     name: 'Error500',
-    component: () => import('@/views/status/Error500.vue')
+    component: () => import('@/pages/status/Error500.vue')
   },
   {
-    path: '/nopower',
-    name: 'ErrorPower',
-    component: () => import('@/views/status/ErrorPower.vue')
+    path: '/403',
+    name: 'Error403',
+    component: () => import('@/pages/status/Error403.vue')
   },
   {
     path: '/',
     name: 'login',
-    component: () => import('@/views/status/Login.vue')
-  },
-  {
-    path: '/demo/compress',
-    name: 'compress',
-    component: () => import('@/views/demo/compress')
+    component: () => import('@/pages/status/Login.vue')
   },
   { path: '*', redirect: '/404' }
 ];

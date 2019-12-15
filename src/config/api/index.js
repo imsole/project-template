@@ -1,5 +1,5 @@
-import common from './common'
+import {common} from './common'
 
-export default {
+export const HTTP = {
   common
 };

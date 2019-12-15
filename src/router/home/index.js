@@ -1,6 +1,6 @@
 const home = {
   path: '/home',
-  component: () => import('@/views/Home.vue'),
+  component: () => import('@/pages/Home.vue'),
   meta: { id: 0 },
   children: [
     {
@@ -10,7 +10,7 @@ const home = {
     {
       path: '/home/dashboard',
       name: 'dashboard',
-      component: () => import('@/views/Dashboard.vue')
+      component: () => import('@/pages/Dashboard.vue')
     }
   ]
 };

@@ -1,4 +1,3 @@
-import XLSX from 'xlsx'
 // 检测空对象
 export const isEmptyObject = (o) => {
     var item;
@@ -99,54 +98,40 @@ export const collection = (arr) => {
 }
 
 
-// 导出数据
-export const exportList = (data, filename, fields) => {
-    let list = JSON.parse( JSON.stringify(data) );
-    let newList = [];
-    let targetKeys = Object.keys(fields);
-    list.forEach(row => {
-        let newRow = {};
-        for(let col in row){
-            let index = targetKeys.indexOf(col);
-            if (index >= 0) {
-                newRow[ fields[targetKeys[index]] ] = row[col];
-            }
-        }
-        newList.push(newRow);
-    })
+/**
+   * 下载文件
+   * @param {string} url 
+   */
+  export function download(url) {
+    let link = document.createElement('a');
+    link.style.display = 'none';
+    link.href = url;
+    link.target="_blank";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 
-    let table = XLSX.utils.json_to_sheet(newList);
-    let wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, table, 'Sheet1');
-    XLSX.writeFile(wb, filename+'.xlsx')
-}
-// 财务汇总表用 - 同时导出多个sheet
-export const exportTable = (tables, filename, fields, sheetName) => {
-    let newTables = [];
-    tables.forEach((item,index) => {
-        let list = JSON.parse( JSON.stringify(item) );
-        let targetKeys = Object.keys(fields[index]);
-        newTables.push([]);
-
-        list.forEach(row => {
-            let newRow = {};
-            for(let col in row){
-                let m = targetKeys.indexOf(col);
-                if (m >= 0) {
-                    newRow[ fields[index][targetKeys[m]] ] = row[col];
-                }
-            }
-            newTables[index].push(newRow);
-        });
-    });
-
-    let wb = XLSX.utils.book_new();
-    newTables.forEach((item,index) => {
-        let table = XLSX.utils.json_to_sheet(item);
-        XLSX.utils.book_append_sheet(wb, table, sheetName[index]);
-    });
-    XLSX.writeFile(wb, filename+'.xlsx')
-}
+  /**
+   * 导入失败然后下载二进制文件
+   * @param {文件流} binary 
+   * @param {文件对象} file 
+   * @param {文件mimetype} mimeType 
+   */
+  export function importDownload(binary, file, mimeType = 'application/ms-excel;charset=utf-8') {
+    let filename = file.name;
+    let blob = new Blob([binary], {type: mimeType});
+    if (window.navigator.msSaveOrOpenBlob) {
+      navigator.msSaveBlob(blob, filename);
+    }else{
+      let href = window.URL.createObjectURL(blob);
+      let a = document.createElement('a');
+      a.download = filename;
+      a.href = href;
+      a.click();
+      window.URL.revokeObjectURL(href);
+    }
+  }
 
 export class UnitDate {
     constructor (date) {
