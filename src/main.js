@@ -2,8 +2,8 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router/';
 import store from './store';
-import * as utils from './config/util';
-import { HTTP } from './config/api'
+import * as utils from './libs/util';
+import { HTTP } from './api'
 
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';

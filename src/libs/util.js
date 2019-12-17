@@ -7,8 +7,8 @@ export const isEmptyObject = (o) => {
     return true;
 }
 
-// localStore 存储
-export const Store = {
+// sessionStorage 存储
+export const SStore = {
     set : (name, o) => {
         var item = JSON.stringify(o);
         sessionStorage.setItem(name, item);
@@ -89,6 +89,7 @@ export const collection = (arr) => {
         return arr[0];
     }
     var def = arr[0];
+    // eslint-disable-next-line no-unused-vars
     return arr.reduce((pre, cur, index, arr)=>{
         def = def.filter((n) => {
             return cur.indexOf(n) != -1;
