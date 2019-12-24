@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import axios from 'axios'
 import $router from '../router'
-import { Loading } from 'element-ui';
+import { Loading,Notification } from 'element-ui';
 
 let loading = null;
 let notify = null;

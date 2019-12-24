@@ -14,9 +14,16 @@ export default {
   },
   mounted() {
     console.log(this);
+    this.login();
   },
   methods: {
-
+    async login() {
+      let res = await this.$http.common.login({
+        mobile : '',
+        password : ''
+      });
+      console.log(res);
+    }
   }
 }
 </script>
