@@ -1,17 +1,17 @@
 <template>
-  <div class="page-search" id="tableSearch">
+  <div class="com-search-bar" id="com-search-bar">
     <el-form
       inline
       :label-width="labelWidth"
       :model="search"
       :disabled="isDisable"
     >
-      <el-row v-for="(row, index) in action" :key="index">
+      <el-row v-for="(row, index) in data" :key="index">
         <el-form-item
           v-for="(col, subIndex) in row"
           :key="subIndex"
           :label="col.label"
-          :class="{ 'el-form-item__lager': col.size == 'lager' }"
+          :class="{ 'el-form-item__lager': col.size == 'large' }"
         >
           <template v-if="!col.type || col.type === 'input'">
             <el-input
@@ -63,6 +63,16 @@
               ></el-option>
             </el-select>
           </template>
+          <template v-if="col.type === 'cascader'">
+            <el-cascader
+              :placeholder="col.placeholder || '请选择' + col.label"
+              v-model="search[col.name]"
+              :key="subIndex"
+              :props="col.props"
+              clearable
+            >
+            </el-cascader>
+          </template>
           <template v-if="col.type === 'daterange'">
             <el-date-picker
               :key="subIndex"
@@ -84,39 +94,12 @@
               :placeholder="col.placeholder || '请选择' + col.label"
             ></el-date-picker>
           </template>
-          <template v-if="col.type === 'button'">
-            <el-button
-              :key="subIndex"
-              :type="col.style ? col.style : ''"
-              @click="btnClick(col)"
-              >{{ col.text }}</el-button
-            >
-          </template>
-          <template v-if="col.type === 'image'">
-            <el-popover trigger="hover">
-              <img
-                :src="search[col.name]"
-                style="max-width:400px; max-height:300px;"
-              />
-              <el-image
-                fit="cover"
-                style="width: 32px; height: 32px"
-                :src="search[col.name]"
-                slot="reference"
-              ></el-image>
-            </el-popover>
-          </template>
-          <template v-if="col.type === 'qrcode'">
-            <el-popover trigger="hover">
-              <img :src="qrcode" style="width:150px; height:150px;" />
-              <el-image
-                fit="cover"
-                style="width: 32px; height: 32px"
-                :src="qrcode"
-                slot="reference"
-              ></el-image>
-            </el-popover>
-          </template>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="onSearch">查询</el-button>
+        </el-form-item>
+        <el-form-item>
+          <el-button @click="onClear">清除</el-button>
         </el-form-item>
       </el-row>
     </el-form>
@@ -124,7 +107,6 @@
 </template>
 
 <script>
-import QRCode from 'qrcode';
 export default {
   name: 'ComPageSearch',
   props: {
@@ -143,7 +125,7 @@ export default {
      *   ]
      * ]
      */
-    action: {
+    data: {
       required: true,
       type: Array,
       default() {
@@ -179,7 +161,6 @@ export default {
     return {
       daterangeOpt: {},
       search: {},
-      qrcode: ''
     };
   },
   mounted() {
@@ -192,33 +173,10 @@ export default {
           return new Date(date).getTime() > new Date().getTime();
         };
       } else {
-        this.daterangeOpt.disabledDate = function(date) {
+        this.daterangeOpt.disabledDate = function() {
           return false;
         };
       }
-    },
-    // 按钮点击事件，吧数据传回去
-    btnClick(item) {
-      if (item.action === 'clear') {
-        this.action.forEach(row => {
-          row.forEach(col => {
-            if (col.name) {
-              // console.log(col.name, col.value);
-              this.$set(
-                this.search,
-                col.name,
-                col.value !== null
-                  ? typeof col.value === 'string'
-                    ? col.value.trim()
-                    : col.value
-                  : null
-              );
-            }
-          });
-        });
-        // this.daterange = [];
-      }
-      item.fn(this.search);
     },
     initActionVal() {
       this.action.forEach(row => {
@@ -245,18 +203,39 @@ export default {
       let newVal = val.replace(/^0|[^\d+]|[`,\.eE\-\+]/g, '');
       this.search[col.name] = newVal;
       this.$set(this.search, col.name, newVal);
+    },
+    onSearch() {
+      this.$emit('onsearch', this.search);
+    },
+    onClear() {
+       this.data.forEach(row => {
+        row.forEach(col => {
+          if (col.name) {
+            this.$set(
+              this.search,
+              col.name,
+              col.value !== null
+                ? typeof col.value === 'string'
+                  ? col.value.trim()
+                  : col.value
+                : null
+            );
+          }
+        });
+      });
+      this.$emit('onclear');
     }
   },
   watch: {
     // 监听一下search，在改变的时候回传出去
     search: {
-      handler: function(val, oldVal) {
+      handler: function(val) {
         this.$emit('onchange', val);
       },
       deep: true
     },
-    action: {
-      handler(val, old) {
+    data: {
+      handler(val) {
         val.forEach(row => {
           row.forEach(col => {
             if (col.name) {
@@ -265,11 +244,6 @@ export default {
                 col.name,
                 col.value !== null ? col.value : null
               );
-            }
-            if (col.type === 'qrcode' && col.value) {
-              QRCode.toDataURL(col.value).then(url => {
-                this.qrcode = url;
-              });
             }
           });
         });
@@ -283,14 +257,20 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.com-search-bar { margin-bottom: -15px; }
 .el-form /deep/ {
-  .el-input,
-  .el-select,
-  .el-date-editor--daterange.el-input__inner {
-    width: 220px;
-  }
-  .el-image__error {
-    line-height: 1;
+  margin-top:15px;
+
+  .el-form-item { 
+    margin-bottom: 15px; 
+
+    .el-button { vertical-align: top; }
+
+    .el-input,
+    .el-select,
+    .el-date-editor--daterange.el-input__inner {
+      width: 220px;
+    }
   }
   .el-form-item__lager .el-form-item__content {
     width: 447px;

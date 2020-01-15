@@ -1,9 +1,9 @@
 <template>
-  <div class="widget-table">
+  <div class="com-table">
     <el-table
       border
       stripe
-      :data="list"
+      :data="data"
       row-key="id"
       :lazy="lazy"
       :load="load"
@@ -14,9 +14,6 @@
       style="width:100%"
       :max-height="tableHeight"
     >
-      <template slot="empty">
-        <label>没有符合条件的数据</label>
-      </template>
       <template v-for="(item, index) in fields">
         <!-- checkbox -->
         <el-table-column
@@ -73,7 +70,7 @@
             </el-table>
           </template>
         </el-table-column>
-        <!-- 排序 -->
+        <!-- order -->
         <el-table-column
           v-else-if="item.type === 'order'"
           :label="item.label"
@@ -120,93 +117,14 @@
           :width="item.width ? item.width + 'px' : ''"
         >
           <template slot-scope="scope">
-            <template v-for="(pic, n) in scope.row[item.prop]">
-              <el-image
-                :key="'img' + n"
-                v-if="pic.fileUrl"
-                fit="cover"
-                :src="pic.fileUrl"
-                :preview-src-list="[pic.fileUrl]"
-              >
-              </el-image>
-            </template>
-          </template>
-        </el-table-column>
-        <!-- chat -->
-        <el-table-column
-          v-else-if="item.type === 'chat'"
-          :label="item.label"
-          :key="'chat' + index"
-          class-name="link-cell"
-          :width="item.width ? item.width + 'px' : ''"
-        >
-          <template slot-scope="scope">
-            <template v-if="scope.row[item.prop].type === 'text'">
-              {{ scope.row[item.prop].content }}
-            </template>
-            <template v-if="scope.row[item.prop].type === 'pics'">
-              <template v-for="(pic, n) in scope.row[item.prop].content">
-                <el-image
-                  :key="'img' + n"
-                  v-if="pic.fileUrl && scope.row[item.prop].fn"
-                  fit="cover"
-                  style="width: 40px; height: 40px;cursor: pointer"
-                  :src="pic.fileUrl"
-                  @click.native="scope.row[item.prop].fn(scope.row)"
-                >
-                </el-image>
-                <el-image
-                  v-else-if="pic.fileUrl"
-                  :key="'img' + n"
-                  fit="cover"
-                  style="width: 40px; height: 40px"
-                  :src="pic.fileUrl"
-                  :preview-src-list="[pic.fileUrl]"
-                >
-                </el-image>
-              </template>
-            </template>
-            <template v-if="scope.row[item.prop].type === 'share'">
-              <el-link
-                type="primary"
-                :underline="false"
-                :href="scope.row[item.prop].content.url"
-                target="_blank"
-              >
-                {{ scope.row[item.prop].content.title }}
-              </el-link>
-            </template>
-            <template v-if="scope.row[item.prop].type === 'file'">
-              <el-link
-                type="primary"
-                :underline="false"
-                :href="scope.row[item.prop].content.url"
-                target="_blank"
-              >
-                {{ scope.row[item.prop].content.title }}
-              </el-link>
-            </template>
-            <template v-if="scope.row[item.prop].type === 'audio'">
-              <i
-                class="el-icon-video-play"
-                @click="scope.row[item.prop].fn(scope.row)"
-              ></i>
-            </template>
-            <template v-if="scope.row[item.prop].type === 'video'">
+            <!-- <template v-for="(pic, n) in scope.row[item.prop]"> -->
               <el-image
                 fit="cover"
-                style="width: 40px; height: 40px"
-                class="video-cover"
-                :src="
-                  'data:image/jpeg;base64,' + scope.row[item.prop].content.title
-                "
-                @click.native="scope.row[item.prop].fn(scope.row)"
+                :src="scope.row[item.prop]"
+                :preview-src-list="[scope.row[item.prop]]"
               >
               </el-image>
-            </template>
-            <template v-if="scope.row[item.prop].type === 'unknow'">
-              {{ scope.row[item.prop].content }}
-            </template>
+            <!-- </template> -->
           </template>
         </el-table-column>
         <!-- icon -->
@@ -219,8 +137,49 @@
           <template slot-scope="scope">
             <i
               :class="scope.row[item.prop]"
-              @click="listItemClick(item, scope.row)"
+              @click="listItemEvent(item, scope.row)"
             />
+          </template>
+        </el-table-column>
+        <!-- switch -->
+        <el-table-column
+          v-else-if="item.type === 'switch'"
+          :label="item.label"
+          :key="'switch' + index"
+          :width="item.width ? item.width + 'px' : ''"
+        >
+          <template slot-scope="scope">
+            <el-switch v-model="scope.row[item.prop]" @change="listItemEvent(item, scope.row)"></el-switch>
+          </template>
+        </el-table-column>
+        <!-- input -->
+        <el-table-column
+          v-else-if="item.type === 'input'"
+          :label="item.label"
+          :key="'input' + index"
+          :width="item.width ? item.width + 'px' : ''"
+        >
+          <template slot-scope="scope">
+            <el-input v-model="scope.row[item.prop]" @change="listItemEvent(item, scope.row)"></el-input>
+          </template>
+        </el-table-column>
+        <!-- line -->
+        <el-table-column
+          v-else-if="item.type === 'line'"
+          :label="item.label"
+          :key="'line' + index"
+          :width="item.width ? item.width + 'px' : ''"
+        >
+          <template slot-scope="scope">
+            <template v-for="(line, lineIndex) in item.props">
+              <el-row v-if="lineIndex == 0" :key="lineIndex" class="link-cell">
+                <el-link v-if="line.type == 'link'" :underline="false" :type="line.style || 'primary'">
+                  {{ scope.row[line.prop] }}
+                </el-link>
+                <tempalte v-else>{{ scope.row[line.prop] }}</tempalte>
+              </el-row>
+              <span :key="lineIndex" v-else>{{line.label}}:{{scope.row[line.prop]}}</span>
+            </template>
           </template>
         </el-table-column>
         <!-- html -->
@@ -234,6 +193,30 @@
             <div class="html-cell" v-html="scope.row[item.prop]"></div>
           </template>
         </el-table-column>
+        <!-- action -->
+        <el-table-column
+          v-else-if="item.type === 'action'"
+          :key="'action' + index"
+          :label="item.label"
+          :width="item.width"
+          class-name="actions link-cell"
+          fixed="right"
+        >
+          <template slot-scope="scope">
+            <template v-for="(action, n) in item.actions">
+              <el-link
+                v-if="!('show' in action) || action.show"
+                :key="'action' + n"
+                :underline="false"
+                :type="action.style || 'primary'"
+                :disabled="action.disabled || false"
+                @click="action.fn(scope.row, scope.$index)"
+              >
+                {{ action.text }}
+              </el-link>
+            </template>
+          </template>
+        </el-table-column>
         <!-- 其他文本类型 -->
         <el-table-column
           v-else
@@ -244,98 +227,18 @@
           :width="item.width ? item.width + 'px' : ''"
         >
           <template slot-scope="scope">
-            <template v-if="item.enum">
-              {{ item.enum[scope.row[item.prop]] }}
-            </template>
-            <template v-else>
-              {{ scope.row[item.prop] }}
-            </template>
+            {{ scope.row[item.prop] }}
           </template>
         </el-table-column>
       </template>
-      <!-- 如果action存在 再显示 -->
-      <el-table-column
-        label="操作"
-        :width="actionWidth"
-        v-if="actions.length"
-        class-name="actions link-cell"
-        fixed="right"
-      >
-        <!-- actionTrigger 这个目前只在im的群组用到，用于检测是不是群主，群主不限时操作按钮 -->
-        <template slot-scope="scope">
-          <template
-            v-if="
-              !actionTrigger.field ||
-                scope.row[actionTrigger.field] != actionTrigger.value
-            "
-          >
-            <template v-for="(action, n) in actions">
-              <!-- 显示链接 -->
-              <template v-if="!action.type || action.type === 'link'">
-                <!-- 根据trigger判断显示操作按钮 -->
-                <template v-if="action.trigger">
-                  <el-link
-                    v-if="
-                      scope.row[action.trigger.field] == action.trigger.value
-                    "
-                    :key="'btn' + n"
-                    :underline="false"
-                    :type="action.style || 'primary'"
-                    @click="action.fn(scope.row, scope.$index)"
-                  >
-                    {{ action.text }}
-                  </el-link>
-                </template>
-                <el-link
-                  v-else
-                  :key="n"
-                  :underline="false"
-                  :type="action.style || 'primary'"
-                  @click="action.fn(scope.row, scope.$index)"
-                >
-                  {{ action.text }}
-                </el-link>
-              </template>
-              <!-- 显示按钮 -->
-              <template v-if="action.type === 'button'">
-                <template v-if="action.trigger">
-                  <el-button
-                    v-if="
-                      scope.row[action.trigger.field] == action.trigger.value
-                    "
-                    size="mini"
-                    :key="n"
-                    :type="action.style || 'default'"
-                    @click="action.fn(scope.row, scope.$index)"
-                  >
-                    {{ action.text }}
-                  </el-button>
-                </template>
-                <el-button
-                  v-else
-                  size="mini"
-                  :key="n"
-                  :type="action.style || 'default'"
-                  @click="action.fn(scope.row, scope.$index)"
-                >
-                  {{ action.text }}
-                </el-button>
-              </template>
-            </template>
-          </template>
-        </template>
-      </el-table-column>
     </el-table>
 
     <!-- 分页 -->
     <el-row class="list-ft" v-if="total > 0">
       <el-col :span="6">
-        <!-- <el-button v-if="batDel" type="danger" @click="listBatAction">
-          {{ listBatActionText }}
-        </el-button> -->
         <template v-if="batDel">
           <el-button
-            v-for="(item, key) in batActions"
+            v-for="(item, key) in actions"
             :key="key"
             :type="item.style || 'danger'"
             @click="item.fn(listSelects)"
@@ -355,6 +258,7 @@
           :current-page="pageNo"
           :page-sizes="pagesizes"
           :page-size="pagesize"
+          :pager-count="pageCount"
           @current-change="onPage"
           @size-change="onSizeChange"
         >
@@ -375,8 +279,8 @@ export default {
         return false;
       }
     },
-    // list item 包含 label prop tip type
-    list: {
+    // data item 包含 label prop tip type
+    data: {
       required: true,
       type: Array,
       default() {
@@ -389,30 +293,6 @@ export default {
       type: Array,
       default() {
         return [];
-      }
-    },
-    // 最右侧操作按钮
-    actions: {
-      required: false,
-      type: Array,
-      default() {
-        return [];
-      }
-    },
-    // 检测操作按钮是否显示的条件
-    actionTrigger: {
-      required: false,
-      type: Object,
-      default() {
-        return {};
-      }
-    },
-    // 操作列宽度
-    actionWidth: {
-      required: false,
-      type: String,
-      default() {
-        return '';
       }
     },
     // 是否懒加载
@@ -447,8 +327,16 @@ export default {
         return 1;
       }
     },
+    // 页码按钮数
+    pageCount: {
+      required: false,
+      type: Number,
+      default() {
+        return 5;
+      }
+    },
     // 批量操作列表
-    batActions: {
+    actions: {
       required: false,
       type: Array,
       default() {
@@ -476,36 +364,44 @@ export default {
   },
   data() {
     return {
-      // actionWidth: '240px',
       listSelects: [],
       batDel: false,
       pageNo: 1,
       pagesizes: [10, 20, 30, 50, 100, 200, 500],
       pagesize: 10,
-      tableHeight: 200
+      tableHeight: 300
     };
   },
   mounted() {
-    // this.initActionWidth();
     this.hasSelect();
     this.handleTableHeight();
   },
   methods: {
-    handleTableHeight: function() {
-      var _this = this;
-      window.onresize = function() {
-        var t1 = null;
-        window.clearTimeout(t1);
-        t1 = setTimeout(function() {
-          var tableSearch = document.getElementById('tableSearch');
-          if (!tableSearch) {
-            return;
+    handleTableHeight() {
+      let _this = this;
+      let fixHeight = 0;
+      window.onresize = () => {
+        let timer = setTimeout(function() {
+          let searchBar = document.getElementById('com-search-bar');
+          let headerBar = document.getElementById('com-header-bar');
+          let actionBar = document.getElementById('com-action-bar');
+          if (searchBar) {
+            fixHeight += searchBar.offsetHeight;
           }
-          _this.tableHeight =
-            window.innerHeight - tableSearch.clientHeight - 285;
+          if (headerBar) {
+            fixHeight += headerBar.offsetHeight;
+          }
+          if (actionBar) {
+            fixHeight += actionBar.offsetHeight;
+          }
+          _this.tableHeight = window.innerHeight - fixHeight;
           if (_this.total <= 0) {
             _this.tableHeight += 53;
           }
+          if (_this.tableHeight < 300) {
+            _this.tableHeight = 300;
+          }
+          window.clearTimeout(timer);
         }, 100);
       };
       window.onresize();
@@ -548,22 +444,23 @@ export default {
       this.$emit('onsize', size);
     },
     // 单元格内容点击事件
-    listItemClick(item, row) {
+    listItemEvent(item, row) {
       item.fn && item.fn(row);
-    }
+    },
   },
   watch: {
     currPage(val) {
       this.pageNo = val;
     },
-    total(val) {
+    total() {
       this.handleTableHeight();
     }
   }
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+.com-table { margin: 15px 0; }
 .el-icon-top,
 .el-icon-bottom {
   font-size: 20px;
@@ -571,60 +468,52 @@ export default {
 }
 .el-table {
   width: 100%;
-}
-.el-table >>> .pics-cell span {
-  display: inline-block;
-  height: 40px;
-  margin: 0 3px;
-  vertical-align: middle;
-}
-.el-table >>> .pics-cell .el-image,
-.el-table >>> .pics-cell img {
-  vertical-align: middle;
-}
-.el-table >>> .pics-cell .el-image {
-  width: 40px;
-  height: 40px;
-}
-.el-table >>> .moreinfo {
-  word-break: break-all;
-}
-.el-table >>> .el-divider {
-  margin: 15px 0;
+  font-size: 14px;
+
+  /deep/ {
+    .pics-cell span {
+      display: inline-block;
+      height: 40px;
+      margin: 0 3px;
+      vertical-align: middle;
+    }
+
+    .pics-cell .el-image, .pics-cell img {
+      vertical-align: middle;
+    }
+    .pics-cell .el-image {
+      width: 40px;
+      height: 40px;
+    }
+    .moreinfo {
+      word-break: break-all;
+    }
+    .el-divider {
+      margin: 15px 0;
+    }
+    .link-cell .el-link {
+      font-weight: normal;
+    }
+    .link-cell .el-tooltip .el-link {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .cell.el-tooltip {
+      max-width: 240px;
+    }
+    .cell .el-icon-success { color:#409eff; }
+    .cell .el-icon-circle-close { color:#f56c6c; }
+  }
 }
 
-.el-table >>> .link-cell .el-icon-video-play {
-  cursor: pointer;
-  font-size: 20px;
-}
-.el-table .link-cell .el-link--text {
-  cursor: auto;
-}
-.el-table >>> .link-cell .el-link {
-  font-size: 12px;
-  font-weight: normal;
-}
-.el-table >>> .link-cell .el-tooltip .el-link {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.el-table >>> .video-cover {
-  cursor: pointer;
-}
-.el-table >>> .video-cover:before {
-  position: absolute;
-  left: 10px;
-  top: 10px;
-  content: '\E7C0';
-  font-family: 'element-icons' !important;
-  color: #fff;
-  font-size: 18px;
-}
-.expandTable >>> .el-table .el-table__expanded-cell[class*='cell'] {
+.expandTable /deep/ .el-table .el-table__expanded-cell[class*='cell'] {
   padding: 0;
 }
-.el-table >>> .cell.el-tooltip {
-  max-width: 240px;
-}
+
+.actions .cell .el-link:nth-child(n+2) { margin-left: 10px; }
+
+.list-ft { margin: 15px 0; }
+
+.cell span { margin-right: 10px; font-size:12px; color:#999; }
 </style>
