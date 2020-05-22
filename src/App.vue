@@ -6,17 +6,9 @@
 
 <script>
 export default {
-  name: 'app',
-}
+  name: "app"
+};
 </script>
 
 <style>
-#app {
-  font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif,"Segoe UI";
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
 </style>

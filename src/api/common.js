@@ -1,5 +1,5 @@
 import fetch from '@/libs/http'
-export const common = {
+export default {
   login: data => fetch('/sessions', data, 'POST', false),
   logout: data => fetch('/session', data, 'DELETE'),
 }

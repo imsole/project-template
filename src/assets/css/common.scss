@@ -1,0 +1,65 @@
+body {
+  font: 14px/1 "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB",
+  "Microsoft YaHei", "微软雅黑", Arial, sans-serif, "Segoe UI";
+-webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  background: #FAFAFA;
+  box-sizing: content-box;
+
+  a {
+      color: #000;
+      text-decoration: none;
+  }
+  h1, h2, h3, h4, h5, h6, ul, p {
+      margin: 0;
+  }
+
+  ul {
+      padding: 0;
+      list-style: none;
+      overflow: hidden;
+  }
+}
+
+.page-error {
+  padding: 50px 0;
+  p {
+      margin: 20px 0;
+  }
+}
+
+.fb {
+  display: flex;
+  justify-content: space-between;
+}
+
+.fbc {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.font-12 {
+  font-size: 12px;
+}
+.font-14 {
+  font-size: 14px;
+}
+.font-16 {
+  font-size: 16px;
+}
+.font-18 {
+  font-size: 18px;
+}
+.font-30 {
+  font-size: 30px;
+}
+
+.color-gray {
+  color: #9B9B9B;
+}
+
+.text-center {
+  text-align: center;
+}

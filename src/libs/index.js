@@ -1,17 +1,22 @@
 import Vue from 'vue'
 
+// ElementUI
 import ElementUI from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css';
+import '../assets/css/element-variables.scss'
 
-import * as utils from './libs/util';
-import { HTTP } from './api'
+// 自定义工具
+import * as utils from './utils';
 
+// 全局api
+import '../api/index'
+
+// 全局公共组件
+import '../components/index'
+
+// 注册 elementUI
 Vue.use(ElementUI, { size: 'small' });
 
-// utils
-Object.defineProperty(Vue.prototype, '$util', {
-  get(){ return utils }
-});
-Object.defineProperty(Vue.prototype, '$http', {
-  get(){ return HTTP }
+// 注册 utils
+Object.defineProperty(Vue.prototype, '$utils', {
+    get() { return utils }
 });

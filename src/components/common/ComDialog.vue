@@ -1,26 +1,21 @@
 <template>
-  <div class="widget-dialog">
-    <el-dialog
-      :title="title"
-      :close-on-click-modal="false"
-      :visible.sync="visible"
-      :before-close="closeBefore"
-      :width="width+'px'"
-    >
-      <slot></slot>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogClose">{{btnOkText}}</el-button>
-        <el-button type="primary" @click="dialogSave">{{btnOkText}}</el-button>
-        <template v-for="(item, key) in btns">
-          <el-button :key="key" :type="item.type || 'default'" @click="item.fn">{{item.text}}</el-button>
-        </template>
-      </span>
-    </el-dialog>
-  </div>
+  <el-dialog
+    :title="title"
+    append-to-body
+    :show-close="false"
+    :width="width + 'px'"
+    :visible.sync="visible"
+    :before-close="dialogClose"
+    :close-on-click-modal="false"
+    :close-on-press-escape="false"
+  >
+    <slot></slot>
+  </el-dialog>
 </template>
 
 <script>
 export default {
+  name: "ComDialog",
   props: {
     visible: {
       required: true,
@@ -30,114 +25,46 @@ export default {
       }
     },
     title: {
+      required: false,
+      type: String,
+      default() {
+        return "";
+      }
+    },
+    width: {
       required: true,
       type: String,
       default() {
-        return '';
-      }
-    },
-    btnOkText: {
-      required: false,
-      type: String,
-      default() {
-        return '取 消';
-      }
-    },
-    btnCancelText: {
-      required: false,
-      type: String,
-      default() {
-        return '确 定';
-      }
-    },
-    btns: {
-      required: false,
-      type: Array,
-      default() {
-        return [];
-      }
-    },
-    row: {
-      required: false,
-      type: Object,
-      default() {
-        return {};
-      }
-    },
-    id: {
-      required: false,
-      type: Number,
-      default() {
-        return 0;
+        return "";
       }
     }
   },
   data() {
-    return {
-      
-    };
+    return {};
   },
   methods: {
-    // 获取详细信息
-    async getShow() {
-      if (!this.row.id) {
-        return;
-      }
-      let res = await this.$request[this.apiName].show({ id: this.row.id });
-      if (res.success) {
-        this.form = res.result;
-      }
-    },
     // 关闭
     dialogClose() {
-      if (this.form) {
-        Object.keys(this.form).map(item => {
-          this.form[item] = null;
-        });
-      }
-      this.$refs.form && this.$refs.form.resetFields();
-      this.$emit('onclose');
-    },
-    closeBefore() {
-      this.dialogClose();
-    },
-    async dialogSave() {
-      this.$refs.form.validate(async valid => {
-        if (!valid) {
-          return;
-        }
-        let res = null;
-        let data = JSON.parse(JSON.stringify(this.form));
-        this.saveBefore && this.saveBefore(data);
-        if (Object.keys(this.row).length) {
-          // 编辑
-          res = await this.$request[this.apiName].edit(data);
-        } else {
-          // 添加
-          res = await this.$request[this.apiName].add(data);
-        }
-        if (res.success) {
-          this.$notify.success({ title: '提示', message: '操作成功!' });
-          this.dialogClose();
-          this.$emit('onsaved');
-        }
-      });
+      this.$emit("update:visible", false);
+      this.$emit("onclose");
     }
   },
   watch: {
-    dialogStatu(val) {
-      this.$emit('update:visible', val);
-      this.$nextTick(() => {
-        this.$refs.form && this.$refs.form.resetFields();
-        if (Object.keys(this.row).length) {
-          this.form = JSON.parse(JSON.stringify(this.row));
-        }
-      });
+    visible(val) {
+      this.$emit("update:visible", val);
     }
   }
-}
+};
 </script>
-  
-  <style>
-  
-  </style>
+
+<style lang="scss" scoped>
+.el-dialog__wrapper /deep/ {
+  .el-dialog {
+    padding: 0 30px;
+    border-radius: 20px;
+  }
+  .el-dialog__title {
+    font-weight: bold;
+  }
+}
+</style>

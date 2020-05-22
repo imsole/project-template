@@ -24,11 +24,11 @@ module.exports = {
     port: 8080,
     hotOnly: true,
     proxy: {
-      '/': {
+      '/api': {
         target: apiUrl,
         changeOrigin: true,
         pathRewrite: {
-          '^/': '/'
+          '^/api': '/api'
         }
       }
     }
