@@ -1,8 +1,15 @@
-import { common } from './common';
+import Vue from 'vue';
 
-export const HTTP = {
-    common,
-};
+const HTTP = {};
+const files = require.context('./', false, /\.js$/);
+
+files.keys().forEach((fileName) => {
+    const apiConfig = files(fileName);
+    const apiName = fileName.substring(2).replace(/\.\w+$/, '');
+    if (apiName !== 'index') {
+        HTTP[apiName] = apiConfig.default;
+    }
+});
 
 Object.defineProperty(Vue.prototype, '$http', {
     get() {
