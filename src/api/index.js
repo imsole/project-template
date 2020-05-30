@@ -1,5 +1,11 @@
-import {common} from './common'
+import { common } from './common';
 
 export const HTTP = {
-  common
+    common,
 };
+
+Object.defineProperty(Vue.prototype, '$http', {
+    get() {
+        return HTTP;
+    },
+});
