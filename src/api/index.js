@@ -3,14 +3,16 @@ import Vue from 'vue';
 const HTTP = {};
 const files = require.context('./', false, /\.js$/);
 
-files.keys().forEach(fileName => {
-    const componentConfig = files(fileName);
-    const componentName = fileName.substring(2).replace(/\.\w+$/, '');
-    if (componentName !== 'index') {
-        HTTP[componentName] = componentConfig.default;
+files.keys().forEach((fileName) => {
+    const apiConfig = files(fileName);
+    const apiName = fileName.substring(2).replace(/\.\w+$/, '');
+    if (apiName !== 'index') {
+        HTTP[apiName] = apiConfig.default;
     }
 });
 
 Object.defineProperty(Vue.prototype, '$http', {
-    get() { return HTTP }
+    get() {
+        return HTTP;
+    },
 });
