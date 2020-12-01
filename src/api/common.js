@@ -1,5 +1,9 @@
 import fetch from '@/libs/http'
 export default {
-  login: data => fetch('/sessions', data, 'POST', false),
+  login: data => fetch({
+    url: '/sessions',
+    token: false,
+    data
+  }),
   logout: data => fetch('/session', data, 'DELETE'),
 }

@@ -1,16 +1,12 @@
 <template>
-  <div class="page-login">
-    Login
-  </div>
+  <div class="page-login">Login</div>
 </template>
 
 <script>
 export default {
-  name: 'Login',
+  name: "Login",
   data() {
-    return {
-
-    }
+    return {};
   },
   mounted() {
     console.log(this);
@@ -19,15 +15,14 @@ export default {
   methods: {
     async login() {
       let res = await this.$http.common.login({
-        mobile : '',
-        password : ''
+        mobile: "",
+        password: ""
       });
       console.log(res);
     }
   }
-}
+};
 </script>
 
 <style>
-
 </style>

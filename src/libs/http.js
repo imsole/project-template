@@ -61,33 +61,33 @@ service.interceptors.response.use(
         let msg = '';
 
         // 如果有返回的数据
-        if (res && res.data) {
-            msg = res.data.message;
+        if (res) {
+            if (![200,304].includes(res.status)) {
+                msg = error.message;
+            }
         } else {
             if (error.code === 'ECONNABORTED') {
                 msg = '请求超时，请刷新页面重试。';
             } else {
-                msg =
-                    '系统异常，错误码: ' +
-                    (error.response ? error.response.status : error.message);
+                msg = '系统异常，错误码: ' + (res ? res.status : error.message);
             }
         }
 
         messageShow(title, msg);
         loadingHide();
 
-        if (res && res.data) {
-            let code = res.data.code;
-            // 未登录状态跳转到登录
-            if (code === 'E10000') {
-                Vue.prototype.$utils.delCookie('adminInfo');
-                $router.push('/');
-            }
-            // 无权限
-            if (code === 'E10001') {
-                $router.push('/nopower');
-            }
-        }
+        // if (res && res.data) {
+        //     let code = res.data.code;
+        //     // 未登录状态跳转到登录
+        //     if (code === 'E10000') {
+        //         Vue.prototype.$utils.delCookie('adminInfo');
+        //         $router.push('/');
+        //     }
+        //     // 无权限
+        //     if (code === 'E10001') {
+        //         $router.push('/nopower');
+        //     }
+        // }
         // Do something with response error
         return Promise.reject(error);
     }
