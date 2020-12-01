@@ -15,6 +15,9 @@ import '@/mock/index'
 // 全局公共组件
 import '@/components/index'
 
+// mock 数据
+import '../mock/index'
+
 // 注册 elementUI
 Vue.use(ElementUI, { size: 'small' });
 
